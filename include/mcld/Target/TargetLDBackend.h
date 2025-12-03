@@ -45,10 +45,10 @@ class StubFactory;
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
 //===----------------------------------------------------------------------===//
+
 class TargetLDBackend {
  public:
-  typedef llvm::iplist<Relocation, GCFactoryListTraits<Relocation> >
-      ExtraRelocList;
+  typedef llvm::iplist<Relocation> ExtraRelocList;
   typedef ExtraRelocList::iterator extra_reloc_iterator;
 
  protected:

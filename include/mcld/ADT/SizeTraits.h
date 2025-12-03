@@ -10,7 +10,7 @@
 #define MCLD_ADT_SIZETRAITS_H_
 
 #include <llvm/Support/DataTypes.h>
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 namespace mcld {
 

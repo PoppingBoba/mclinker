@@ -30,7 +30,7 @@
 #include "mcld/Support/MsgHandling.h"
 #include "mcld/Support/TargetRegistry.h"
 
-#include <llvm/ADT/Triple.h>
+#include <llvm/TargetParser/Triple.h>
 #include <llvm/Support/Casting.h>
 
 #include <cstring>

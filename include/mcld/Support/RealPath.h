@@ -49,10 +49,7 @@ class RealPath : public Path {
 namespace std {
 
 template <>
-struct less<mcld::sys::fs::RealPath>
-    : public binary_function<mcld::sys::fs::RealPath,
-                             mcld::sys::fs::RealPath,
-                             bool> {
+struct less<mcld::sys::fs::RealPath> {
   bool operator()(const mcld::sys::fs::RealPath& pX,
                   const mcld::sys::fs::RealPath& pY) const {
     if (pX.native().size() < pY.native().size())

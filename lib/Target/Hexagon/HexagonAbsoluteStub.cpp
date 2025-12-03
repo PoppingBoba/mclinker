@@ -14,7 +14,7 @@
 #include "mcld/LD/LDSymbol.h"
 #include "mcld/Fragment/Relocation.h"
 
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 #include <llvm/Support/MathExtras.h>
 
 namespace mcld {

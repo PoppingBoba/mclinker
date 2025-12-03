@@ -23,7 +23,7 @@
 #include "mcld/Support/Path.h"
 
 #include <llvm/ADT/StringRef.h>
-#include <llvm/Support/Host.h>
+#include <llvm/TargetParser/Host.h>
 
 #include <cstdlib>
 #include <cstring>

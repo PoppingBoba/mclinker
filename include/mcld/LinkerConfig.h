@@ -14,7 +14,7 @@
 #include "mcld/AttributeOption.h"
 #include "mcld/Support/Path.h"
 
-#include <llvm/ADT/Triple.h>
+#include <llvm/TargetParser/Triple.h>
 
 #include <string>
 

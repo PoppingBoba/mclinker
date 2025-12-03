@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <llvm/Support/Casting.h>
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 #include "mcld/Support/MsgHandling.h"
 #include "MipsGOTPLT.h"
 #include "MipsPLT.h"

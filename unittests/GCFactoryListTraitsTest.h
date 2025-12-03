@@ -74,12 +74,12 @@ class GCFactoryListTraitsTest : public ::testing::Test {
   // TearDown() will be called immediately after each test.
   virtual void TearDown();
 
-  const llvm::iplist<Node, mcld::GCFactoryListTraits<Node> >& getNodeList()
+  const llvm::iplist<Node>& getNodeList()
       const {
     return m_pNodeList;
   }
 
-  llvm::iplist<Node, mcld::GCFactoryListTraits<Node> >& getNodeList() {
+  llvm::iplist<Node,>& getNodeList() {
     return m_pNodeList;
   }
 
@@ -87,7 +87,7 @@ class GCFactoryListTraitsTest : public ::testing::Test {
   NodeFactory m_NodeFactory;
   Node** m_pNodesAlloc;
 
-  llvm::iplist<Node, mcld::GCFactoryListTraits<Node> > m_pNodeList;
+  llvm::iplist<Node> m_pNodeList;
 };
 
 }  // namespace of mcldtest

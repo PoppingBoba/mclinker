@@ -43,7 +43,7 @@
 #include "mcld/Target/TargetLDBackend.h"
 
 #include <llvm/Support/Casting.h>
-#include <llvm/Support/Host.h>
+#include <llvm/TargetParser/Host.h>
 
 #include <system_error>
 

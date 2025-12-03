@@ -10,7 +10,7 @@
 #define MCLD_SUPPORT_TARGETREGISTRY_H_
 #include "mcld/Support/Target.h"
 
-#include <llvm/ADT/Triple.h>
+#include <llvm/TargetParser/Triple.h>
 
 #include <list>
 #include <string>

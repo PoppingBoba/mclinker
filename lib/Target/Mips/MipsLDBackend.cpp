@@ -32,11 +32,11 @@
 #include "mcld/Support/TargetRegistry.h"
 #include "mcld/Target/OutputRelocSection.h"
 
-#include <llvm/ADT/Triple.h>
+#include <llvm/TargetParser/Triple.h>
 #include <llvm/Object/ELFTypes.h>
 #include <llvm/Support/Casting.h>
-#include <llvm/Support/ELF.h>
-#include <llvm/Support/Host.h>
+#include <llvm/BinaryFormat/ELF.h>
+#include <llvm/TargetParser/Host.h>
 #include <llvm/Support/MipsABIFlags.h>
 
 #include <vector>
@@ -182,7 +182,7 @@ void MipsGNULDBackend::doPreLayout(IRBuilder& pBuilder) {
   if (!config().isCodeStatic() && m_pDynamic == NULL)
     m_pDynamic = new MipsELFDynamic(*this, config());
 
-  if (m_pAbiInfo.hasValue())
+  if (m_pAbiInfo.has_value())
     m_pAbiFlags->setSize(m_pAbiInfo->size());
 
   // set .got size
@@ -275,7 +275,7 @@ uint64_t MipsGNULDBackend::emitSectionData(const LDSection& pSection,
     return m_pGOTPLT->emit(pRegion);
   }
 
-  if (&pSection == m_pAbiFlags && m_pAbiInfo.hasValue())
+  if (&pSection == m_pAbiFlags && m_pAbiInfo.has_value())
     return MipsAbiFlags::emit(*m_pAbiInfo, pRegion);
 
   if (&pSection == m_psdata && m_psdata->hasSectionData()) {

@@ -19,7 +19,7 @@
 #include <../lib/Target/X86/X86GNUInfo.h>
 
 #include <llvm/ADT/StringRef.h>
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 #include <cstdio>
 

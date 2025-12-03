@@ -156,8 +156,7 @@ Path& Path::append(InputIterator begin, InputIterator end) {
 namespace std {
 
 template <>
-struct less<mcld::sys::fs::Path>
-    : public binary_function<mcld::sys::fs::Path, mcld::sys::fs::Path, bool> {
+struct less<mcld::sys::fs::Path> {
   bool operator()(const mcld::sys::fs::Path& pX,
                   const mcld::sys::fs::Path& pY) const {
     if (pX.generic_string().size() < pY.generic_string().size())

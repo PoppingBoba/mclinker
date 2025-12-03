@@ -10,7 +10,7 @@
 #define TARGET_AARCH64_AARCH64RELOCATIONHELPERS_H_
 
 #include "AArch64Relocator.h"
-#include <llvm/Support/Host.h>
+#include <llvm/TargetParser/Host.h>
 
 namespace mcld {
 //===----------------------------------------------------------------------===//

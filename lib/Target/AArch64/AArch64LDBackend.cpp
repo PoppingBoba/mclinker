@@ -38,10 +38,10 @@
 #include "mcld/Target/GNUInfo.h"
 #include "mcld/Object/ObjectBuilder.h"
 
-#include <llvm/ADT/Triple.h>
+#include <llvm/TargetParser/Triple.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/Casting.h>
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 #include <cstring>
 

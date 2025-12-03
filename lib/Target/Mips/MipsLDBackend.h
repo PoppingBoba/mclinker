@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_MIPS_MIPSLDBACKEND_H_
 #define TARGET_MIPS_MIPSLDBACKEND_H_
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 #include "mcld/Target/GNULDBackend.h"
 #include "MipsAbiFlags.h"
 #include "MipsELFDynamic.h"
@@ -240,7 +240,7 @@ class MipsGNULDBackend : public GNULDBackend {
 
  private:
   MipsGNUInfo& m_pInfo;
-  llvm::Optional<MipsAbiFlags> m_pAbiInfo;
+  std::optional<MipsAbiFlags> m_pAbiInfo;
 
   OutputRelocSection* m_pRelPlt;  // .rel.plt
   OutputRelocSection* m_pRelDyn;  // .rel.dyn

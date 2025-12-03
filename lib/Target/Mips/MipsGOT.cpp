@@ -15,7 +15,7 @@
 #include "MipsRelocator.h"
 
 #include <llvm/Support/Casting.h>
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 namespace {
 const uint32_t Mips32ModulePtr = 1 << 31;

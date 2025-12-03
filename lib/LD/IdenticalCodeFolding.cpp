@@ -39,7 +39,7 @@ static bool isSymCtorOrDtor(const ResolveInfo& pSym) {
   // We can always fold ctors and dtors since accessing function pointer in C++
   // is forbidden.
   llvm::StringRef name(pSym.name(), pSym.nameSize());
-  if (!name.startswith("_ZZ") && !name.startswith("_ZN")) {
+  if (!name.starts_with("_ZZ") && !name.starts_with("_ZN")) {
     return false;
   }
   return isCtorOrDtor(pSym.name(), pSym.nameSize());

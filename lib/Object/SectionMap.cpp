@@ -325,7 +325,7 @@ bool SectionMap::matched(const WildcardPattern& pPattern,
                          const std::string& pName) const {
   if (pPattern.isPrefix()) {
     llvm::StringRef name(pName);
-    return name.startswith(pPattern.prefix());
+    return name.starts_with(pPattern.prefix());
   } else {
     return fnmatch0(pPattern.name().c_str(), pName.c_str());
   }

@@ -15,7 +15,7 @@
 #include "mcld/Support/MemoryArea.h"
 
 #include <llvm/ADT/StringRef.h>
-#include <llvm/Support/Dwarf.h>
+#include <llvm/BinaryFormat/Dwarf.h>
 #include <llvm/Support/LEB128.h>
 
 namespace mcld {

@@ -10,7 +10,7 @@
 #include "mcld/Object/ObjectBuilder.h"
 #include "mcld/Target/GNULDBackend.h"
 
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 namespace mcld {
 

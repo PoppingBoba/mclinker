@@ -59,20 +59,19 @@
 
 namespace {
 
-class Driver {
- private:
-  enum Option {
-    // This is not an option.
-    kOpt_INVALID = 0,
-#define OPTION(PREFIX, NAME, ID, KIND, GROUP, ALIAS, ALIASARGS, FLAGS, PARAM, \
-               HELPTEXT, METAVAR) \
-    kOpt_ ## ID,
+enum OptionID {
+  // This is not an option.
+  OPT_INVALID = 0,
+#define OPTION(PREFIX, NAME, ID, KIND, ...) \
+  OPT_ ## ID,
 #include "Options.inc"  // NOLINT
 #undef OPTION
-    kOpt_LastOption
-  };
+  OPT_LastOption
+};
 
-  class OptTable : public llvm::opt::OptTable {
+class Driver {
+ private:
+  class OptTable : public llvm::opt::PrecomputedOptTable {
    private:
 #define PREFIX(NAME, VALUE) \
     static const char* const NAME[];
@@ -117,26 +116,41 @@ class Driver {
   DISALLOW_COPY_AND_ASSIGN(Driver);
 };
 
-#define PREFIX(NAME, VALUE) \
-    const char* const Driver::OptTable::NAME[] = VALUE;
-#include "Options.inc"  // NOLINT
-#undef PREFIX
+// #define PREFIX(NAME, VALUE) \
+//     const char* const Driver::OptTable::NAME[] = VALUE;
+// #include "Options.inc"  // NOLINT
+// #undef PREFIX
 
-const llvm::opt::OptTable::Info Driver::OptTable::InfoTable[] = {
-#define OPTION(PREFIX, NAME, ID, KIND, GROUP, ALIAS, ALIASARGS, FLAGS, PARAM, \
-               HELPTEXT, METAVAR) \
-    { PREFIX, NAME, HELPTEXT, METAVAR, kOpt_ ## ID, \
-      llvm::opt::Option::KIND ## Class, PARAM, FLAGS, kOpt_ ## GROUP, \
-      kOpt_ ## ALIAS, ALIASARGS },
-#include "Options.inc"  // NOLINT
+// @TODO Please check this value again
+#define OPTTABLE_STR_TABLE_CODE
+#include "Options.inc"
+#undef OPTTABLE_STR_TABLE_CODE
+
+#define OPTTABLE_VALUES_CODE
+#include "Options.inc"
+#undef OPTTABLE_VALUES_CODE
+
+#define OPTTABLE_PREFIXES_TABLE_CODE
+#include "Options.inc"
+#undef OPTTABLE_PREFIXES_TABLE_CODE
+
+#define OPTTABLE_PREFIXES_UNION_CODE
+#include "Options.inc"
+#undef OPTTABLE_PREFIXES_UNION_CODE
+
+static constexpr llvm::opt::OptTable::Info OptInfoTable[] = {
+#define OPTION(...) LLVM_CONSTRUCT_OPT_INFO(__VA_ARGS__),
+#include "Options.inc"
 #undef OPTION
 };
 
+
 Driver::OptTable::OptTable()
-    : llvm::opt::OptTable(InfoTable) { }
+    : llvm::opt::PrecomputedOptTable(OptionStrTable, OptionPrefixesTable, OptInfoTable, OptionPrefixesTable) { }
 
 inline bool ShouldColorize() {
   const char* term = getenv("TERM");
+  
   return term && (0 != strcmp(term, "dumb"));
 }
 
@@ -158,7 +172,7 @@ inline std::string ParseProgName(const char* prog_name) {
   llvm::StringRef prefix;
 
   for (size_t i = 0; i < sizeof(suffixes) / sizeof(suffixes[0]); ++i) {
-    if (!prog_name_ref.endswith(suffixes[i]))
+    if (!prog_name_ref.ends_with(suffixes[i]))
       continue;
 
     llvm::StringRef::size_type last_component =
@@ -167,7 +181,7 @@ inline std::string ParseProgName(const char* prog_name) {
       continue;
     llvm::StringRef prefix = prog_name_ref.slice(0, last_component);
     std::string ignored_error;
-    if (!mcld::TargetRegistry::lookupTarget(prefix, ignored_error))
+    if (!mcld::TargetRegistry::lookupTarget(prefix.str(), ignored_error))
       continue;
     return prefix.str();
   }
@@ -261,7 +275,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   //===--------------------------------------------------------------------===//
 
   // --color=mode
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_Color)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_Color)) {
     bool res = llvm::StringSwitch<bool>(arg->getValue())
                    .Case("never", false)
                    .Case("always", true)
@@ -275,10 +289,10 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --trace
-  config_.options().setTrace(args.hasArg(kOpt_Trace));
+  config_.options().setTrace(args.hasArg(OPT_Trace));
 
   // --verbose=level
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_Verbose)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_Verbose)) {
     llvm::StringRef value = arg->getValue();
     int level;
     if (value.getAsInteger(0, level)) {
@@ -290,7 +304,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --error-limit NUMBER
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_ErrorLimit)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_ErrorLimit)) {
     llvm::StringRef value = arg->getValue();
     int num;
     if (value.getAsInteger(0, num) || (num < 0)) {
@@ -302,7 +316,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --warning-limit NUMBER
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_WarningLimit)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_WarningLimit)) {
     llvm::StringRef value = arg->getValue();
     int num;
     if (value.getAsInteger(0, num) || (num < 0)) {
@@ -314,13 +328,13 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --warn-shared-textrel
-  config_.options().setWarnSharedTextrel(args.hasArg(kOpt_WarnSharedTextrel));
+  config_.options().setWarnSharedTextrel(args.hasArg(OPT_WarnSharedTextrel));
 
   //===--------------------------------------------------------------------===//
   // Target
   //===--------------------------------------------------------------------===//
   llvm::Triple triple;
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_Triple)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_Triple)) {
     // 1. Use the triple from command.
     // -mtriple=value
     triple.setTriple(arg->getValue());
@@ -336,22 +350,22 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // If a specific emulation was requested, apply it now.
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_Emulation)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_Emulation)) {
     // -m emulation
     ParseEmulation(triple, arg->getValue());
-  } else if (llvm::opt::Arg* arg = args.getLastArg(kOpt_Arch)) {
+  } else if (llvm::opt::Arg* arg = args.getLastArg(OPT_Arch)) {
     // -march=value
     config_.targets().setArch(arg->getValue());
   }
 
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_CPU)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_CPU)) {
     config_.targets().setTargetCPU(arg->getValue());
   }
 
   config_.targets().setTriple(triple);
 
   // --gpsize=value
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_GPSize)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_GPSize)) {
     llvm::StringRef value = arg->getValue();
     int size;
     if (value.getAsInteger(0, size) || (size< 0)) {
@@ -363,7 +377,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --stub-group-size=value
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_StubGroupSize)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_StubGroupSize)) {
     llvm::StringRef value = arg->getValue();
     int size;
     if (value.getAsInteger(0, size) || (size< 0)) {
@@ -376,44 +390,44 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
 
   // --fix-cortex-a53-835769
   config_.targets().setFixCA53Erratum835769(
-      args.hasArg(kOpt_FixCA53Erratum835769));
+      args.hasArg(OPT_FixCA53Erratum835769));
 
   // --fix-cortex-a53-843419
   config_.targets().setFixCA53Erratum843419(
-      args.hasArg(kOpt_FixCA53Erratum843419));
+      args.hasArg(OPT_FixCA53Erratum843419));
 
   //===--------------------------------------------------------------------===//
   // Dynamic
   //===--------------------------------------------------------------------===//
 
   // --entry=entry
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_Entry)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_Entry)) {
     script_.setEntry(arg->getValue());
   }
 
   // -Bsymbolic
-  config_.options().setBsymbolic(args.hasArg(kOpt_Bsymbolic));
+  config_.options().setBsymbolic(args.hasArg(OPT_Bsymbolic));
 
   // -Bgroup
-  config_.options().setBgroup(args.hasArg(kOpt_Bgroup));
+  config_.options().setBgroup(args.hasArg(OPT_Bgroup));
 
   // -soname=name
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_SOName)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_SOName)) {
     config_.options().setSOName(arg->getValue());
   }
 
   // --no-undefined
-  if (args.hasArg(kOpt_NoUndef)) {
+  if (args.hasArg(OPT_NoUndef)) {
     config_.options().setNoUndefined(true);
   }
 
   // --allow-multiple-definition
-  if (args.hasArg(kOpt_AllowMulDefs)) {
+  if (args.hasArg(OPT_AllowMulDefs)) {
     config_.options().setMulDefs(true);
   }
 
   // -z options
-  for (llvm::opt::Arg* arg : args.filtered(kOpt_Z)) {
+  for (llvm::opt::Arg* arg : args.filtered(OPT_Z)) {
     llvm::StringRef value = arg->getValue();
     mcld::ZOption z_opt =
         llvm::StringSwitch<mcld::ZOption>(value)
@@ -439,13 +453,13 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
             .Default(mcld::ZOption());
 
     if (z_opt.kind() == mcld::ZOption::Unknown) {
-      if (value.startswith("common-page-size=")) {
+      if (value.starts_with("common-page-size=")) {
         // -z common-page-size=value
         z_opt.setKind(mcld::ZOption::CommPageSize);
         long long unsigned size = 0;
         value.drop_front(17).getAsInteger(0, size);
         z_opt.setPageSize(static_cast<uint64_t>(size));
-      } else if (value.startswith("max-page-size=")) {
+      } else if (value.starts_with("max-page-size=")) {
         // -z max-page-size=value
         z_opt.setKind(mcld::ZOption::MaxPageSize);
         long long unsigned size = 0;
@@ -457,15 +471,15 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --dynamic-linker=file
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_Dyld)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_Dyld)) {
     config_.options().setDyld(arg->getValue());
   }
 
   // --enable-new-dtags
-  config_.options().setNewDTags(args.hasArg(kOpt_EnableNewDTags));
+  config_.options().setNewDTags(args.hasArg(OPT_EnableNewDTags));
 
   // --spare-dyanmic-tags COUNT
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_SpareDTags)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_SpareDTags)) {
     llvm::StringRef value = arg->getValue();
     int num;
     if (value.getAsInteger(0, num) || (num < 0)) {
@@ -481,16 +495,16 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   //===--------------------------------------------------------------------===//
 
   // Setup the codegen type.
-  if (args.hasArg(kOpt_Shared) || args.hasArg(kOpt_PIE)) {
+  if (args.hasArg(OPT_Shared) || args.hasArg(OPT_PIE)) {
     // -shared, -pie
     config_.setCodeGenType(mcld::LinkerConfig::DynObj);
-  } else if (args.hasArg(kOpt_Relocatable)) {
+  } else if (args.hasArg(OPT_Relocatable)) {
     // -r
     config_.setCodeGenType(mcld::LinkerConfig::Object);
-  } else if (llvm::opt::Arg* arg = args.getLastArg(kOpt_OutputFormat)) {
+  } else if (llvm::opt::Arg* arg = args.getLastArg(OPT_OutputFormat)) {
     // --oformat=value
     llvm::StringRef value = arg->getValue();
-    if (value.equals("binary")) {
+    if (value == "binary") {
       config_.setCodeGenType(mcld::LinkerConfig::Binary);
     }
   } else {
@@ -499,38 +513,38 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
 
   // Setup the output filename.
   llvm::StringRef output_name;
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_Output)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_Output)) {
     output_name = arg->getValue();
   }
   if (!ConfigureOutputName(output_name, module_, config_)) {
     mcld::unreachable(mcld::diag::unrecognized_output_file) << module_.name();
     return false;
   } else {
-    if (!args.hasArg(kOpt_SOName)) {
+    if (!args.hasArg(OPT_SOName)) {
       config_.options().setSOName(module_.name());
     }
   }
 
   // --format=value
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_InputFormat)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_InputFormat)) {
     llvm::StringRef value = arg->getValue();
-    if (value.equals("binary")) {
+    if (value == "binary") {
       config_.options().setBinaryInput();
     }
   }
 
   // Setup debug info stripping.
-  config_.options().setStripDebug(args.hasArg(kOpt_StripDebug) ||
-                                  args.hasArg(kOpt_StripAll));
+  config_.options().setStripDebug(args.hasArg(OPT_StripDebug) ||
+                                  args.hasArg(OPT_StripAll));
 
   // Setup symbol stripping mode.
-  if (args.hasArg(kOpt_StripAll)) {
+  if (args.hasArg(OPT_StripAll)) {
     config_.options().setStripSymbols(
         mcld::GeneralOptions::StripSymbolMode::StripAllSymbols);
-  } else if (args.hasArg(kOpt_DiscardAll)) {
+  } else if (args.hasArg(OPT_DiscardAll)) {
     config_.options().setStripSymbols(
         mcld::GeneralOptions::StripSymbolMode::StripLocals);
-  } else if (args.hasArg(kOpt_DiscardLocals)) {
+  } else if (args.hasArg(OPT_DiscardLocals)) {
     config_.options().setStripSymbols(
         mcld::GeneralOptions::StripSymbolMode::StripTemporaries);
   } else {
@@ -539,19 +553,19 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --eh-frame-hdr
-  config_.options().setEhFrameHdr(args.hasArg(kOpt_EHFrameHdr));
+  config_.options().setEhFrameHdr(args.hasArg(OPT_EHFrameHdr));
 
   // -pie
-  config_.options().setPIE(args.hasArg(kOpt_PIE));
+  config_.options().setPIE(args.hasArg(OPT_PIE));
 
   // --nmagic
-  config_.options().setNMagic(args.hasArg(kOpt_NMagic));
+  config_.options().setNMagic(args.hasArg(OPT_NMagic));
 
   // --omagic
-  config_.options().setOMagic(args.hasArg(kOpt_OMagic));
+  config_.options().setOMagic(args.hasArg(OPT_OMagic));
 
   // --hash-style=style
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_HashStyle)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_HashStyle)) {
     mcld::GeneralOptions::HashStyle style =
         llvm::StringSwitch<mcld::GeneralOptions::HashStyle>(arg->getValue())
             .Case("sysv", mcld::GeneralOptions::HashStyle::SystemV)
@@ -564,9 +578,9 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --[no]-export-dynamic
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_ExportDynamic,
-                                              kOpt_NoExportDynamic)) {
-    if (arg->getOption().matches(kOpt_ExportDynamic)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_ExportDynamic,
+                                              OPT_NoExportDynamic)) {
+    if (arg->getOption().matches(OPT_ExportDynamic)) {
       config_.options().setExportDynamic(true);
     } else {
       config_.options().setExportDynamic(false);
@@ -574,10 +588,10 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --no-warn-mismatch
-  config_.options().setWarnMismatch(!args.hasArg(kOpt_NoWarnMismatch));
+  config_.options().setWarnMismatch(!args.hasArg(OPT_NoWarnMismatch));
 
   // --exclude-libs
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_ExcludeLibs)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_ExcludeLibs)) {
     llvm::StringRef value = arg->getValue();
     do {
       std::pair<llvm::StringRef, llvm::StringRef> res = value.split(',');
@@ -591,7 +605,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   //===--------------------------------------------------------------------===//
 
   // --sysroot
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_Sysroot)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_Sysroot)) {
     mcld::sys::fs::Path path(arg->getValue());
     if (mcld::sys::fs::exists(path) && mcld::sys::fs::is_directory(path)) {
       script_.setSysroot(path);
@@ -599,16 +613,16 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // -L searchdir
-  for (llvm::opt::Arg* arg : args.filtered(kOpt_LibraryPath)) {
+  for (llvm::opt::Arg* arg : args.filtered(OPT_LibraryPath)) {
     if (!script_.directories().insert(arg->getValue()))
       mcld::warning(mcld::diag::warn_cannot_open_search_dir) << arg->getValue();
   }
 
   // -nostdlib
-  config_.options().setNoStdlib(args.hasArg(kOpt_NoStdlib));
+  config_.options().setNoStdlib(args.hasArg(OPT_NoStdlib));
 
   // -rpath=path
-  for (llvm::opt::Arg* arg : args.filtered(kOpt_RPath)) {
+  for (llvm::opt::Arg* arg : args.filtered(OPT_RPath)) {
     config_.options().getRpathList().push_back(arg->getValue());
   }
 
@@ -617,10 +631,10 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   //===--------------------------------------------------------------------===//
 
   // -d/-dc/-dp
-  config_.options().setDefineCommon(args.hasArg(kOpt_DefineCommon));
+  config_.options().setDefineCommon(args.hasArg(OPT_DefineCommon));
 
   // -u symbol
-  for (llvm::opt::Arg* arg : args.filtered(kOpt_Undefined)) {
+  for (llvm::opt::Arg* arg : args.filtered(OPT_Undefined)) {
     config_.options().getUndefSymList().push_back(arg->getValue());
   }
 
@@ -629,7 +643,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   //===--------------------------------------------------------------------===//
 
   // --wrap=symbol
-  for (llvm::opt::Arg* arg : args.filtered(kOpt_Wrap)) {
+  for (llvm::opt::Arg* arg : args.filtered(OPT_Wrap)) {
     bool exist = false;
     const char* symbol = arg->getValue();
     // symbol -> __wrap_symbol
@@ -657,7 +671,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --portalbe=symbol
-  for (llvm::opt::Arg* arg : args.filtered(kOpt_Portable)) {
+  for (llvm::opt::Arg* arg : args.filtered(OPT_Portable)) {
     bool exist = false;
     const char* symbol = arg->getValue();
     // symbol -> symbol_portable
@@ -685,7 +699,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --section-start=section=addr
-  for (llvm::opt::Arg* arg : args.filtered(kOpt_SectionStart)) {
+  for (llvm::opt::Arg* arg : args.filtered(OPT_SectionStart)) {
     llvm::StringRef value = arg->getValue();
     const size_t pos = value.find('=');
     uint64_t addr = 0;
@@ -697,7 +711,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // -Tbss=value
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_Tbss)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_Tbss)) {
     llvm::StringRef value = arg->getValue();
     uint64_t addr = 0;
     if (value.getAsInteger(0, addr)) {
@@ -712,7 +726,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // -Tdata=value
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_Tdata)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_Tdata)) {
     llvm::StringRef value = arg->getValue();
     uint64_t addr = 0;
     if (value.getAsInteger(0, addr)) {
@@ -727,7 +741,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // -Ttext=value
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_Ttext)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_Ttext)) {
     llvm::StringRef value = arg->getValue();
     uint64_t addr = 0;
     if (value.getAsInteger(0, addr)) {
@@ -746,9 +760,9 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   //===--------------------------------------------------------------------===//
 
   // --[no-]gc-sections
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_GCSections,
-                                              kOpt_NoGCSections)) {
-    if (arg->getOption().matches(kOpt_GCSections)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_GCSections,
+                                              OPT_NoGCSections)) {
+    if (arg->getOption().matches(OPT_GCSections)) {
       config_.options().setGCSections(true);
     } else {
       config_.options().setGCSections(false);
@@ -756,9 +770,9 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --[no-]print-gc-sections
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_PrintGCSections,
-                                              kOpt_NoPrintGCSections)) {
-    if (arg->getOption().matches(kOpt_PrintGCSections)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_PrintGCSections,
+                                              OPT_NoPrintGCSections)) {
+    if (arg->getOption().matches(OPT_PrintGCSections)) {
       config_.options().setPrintGCSections(true);
     } else {
       config_.options().setPrintGCSections(false);
@@ -766,9 +780,9 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --[no-]ld-generated-unwind-info
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_LDGeneratedUnwindInfo,
-                                              kOpt_NoLDGeneratedUnwindInfo)) {
-    if (arg->getOption().matches(kOpt_LDGeneratedUnwindInfo)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_LDGeneratedUnwindInfo,
+                                              OPT_NoLDGeneratedUnwindInfo)) {
+    if (arg->getOption().matches(OPT_LDGeneratedUnwindInfo)) {
       config_.options().setGenUnwindInfo(true);
     } else {
       config_.options().setGenUnwindInfo(false);
@@ -776,7 +790,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --icf=mode
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_ICF)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_ICF)) {
     mcld::GeneralOptions::ICF mode =
         llvm::StringSwitch<mcld::GeneralOptions::ICF>(arg->getValue())
             .Case("none", mcld::GeneralOptions::ICF::None)
@@ -792,7 +806,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --icf-iterations
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_ICFIters)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_ICFIters)) {
     llvm::StringRef value = arg->getValue();
     int num;
     if (value.getAsInteger(0, num) || (num < 0)) {
@@ -804,9 +818,9 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   // --[no-]print-icf-sections
-  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_PrintICFSections,
-                                              kOpt_NoPrintICFSections)) {
-    if (arg->getOption().matches(kOpt_PrintICFSections)) {
+  if (llvm::opt::Arg* arg = args.getLastArg(OPT_PrintICFSections,
+                                              OPT_NoPrintICFSections)) {
+    if (arg->getOption().matches(OPT_PrintICFSections)) {
       config_.options().setPrintICFSections(true);
     } else {
       config_.options().setPrintICFSections(false);
@@ -830,7 +844,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
 
     switch (arg->getOption().getID()) {
       // -T script
-      case kOpt_Script: {
+      case OPT_Script: {
         const char* value = arg->getValue();
         config_.options().getScriptList().push_back(value);
 
@@ -851,7 +865,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
       }
 
       // --defsym=symbol=expr
-      case kOpt_DefSym: {
+      case OPT_DefSym: {
         std::string expr;
         expr.append(arg->getValue())
             .append(";");
@@ -862,7 +876,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
       }
 
       // -l namespec
-      case kOpt_Namespec: {
+      case OPT_Namespec: {
         action.reset(new mcld::NamespecAction(
             index, arg->getValue(), script_.directories()));
         actions.push_back(std::move(action));
@@ -879,28 +893,28 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
       }
 
       // --whole-archive
-      case kOpt_WholeArchive: {
+      case OPT_WholeArchive: {
         action.reset(new mcld::WholeArchiveAction(index));
         actions.push_back(std::move(action));
         break;
       }
 
       // --no-whole-archive
-      case kOpt_NoWholeArchive: {
+      case OPT_NoWholeArchive: {
         action.reset(new mcld::NoWholeArchiveAction(index));
         actions.push_back(std::move(action));
         break;
       }
 
       // --as-needed
-      case kOpt_AsNeeded: {
+      case OPT_AsNeeded: {
         action.reset(new mcld::AsNeededAction(index));
         actions.push_back(std::move(action));
         break;
       }
 
       // --no-as-needed
-      case kOpt_NoAsNeeded: {
+      case OPT_NoAsNeeded: {
         action.reset(new mcld::NoAsNeededAction(index));
         actions.push_back(std::move(action));
         break;
@@ -908,8 +922,8 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
 
       // --add-needed
       // FIXME: This is deprecated. Should be --copy-dt-needed-entries.
-      case kOpt_AddNeeded:
-      case kOpt_CopyDTNeeded: {
+      case OPT_AddNeeded:
+      case OPT_CopyDTNeeded: {
         action.reset(new mcld::AddNeededAction(index));
         actions.push_back(std::move(action));
         break;
@@ -917,42 +931,42 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
 
       // --no-add-needed
       // FIXME: This is deprecated. Should be --no-copy-dt-needed-entries.
-      case kOpt_NoAddNeeded:
-      case kOpt_NoCopyDTNeeded: {
+      case OPT_NoAddNeeded:
+      case OPT_NoCopyDTNeeded: {
         action.reset(new mcld::AddNeededAction(index));
         actions.push_back(std::move(action));
         break;
       }
 
       // -Bdynamic
-      case kOpt_Bdynamic: {
+      case OPT_Bdynamic: {
         action.reset(new mcld::BDynamicAction(index));
         actions.push_back(std::move(action));
         break;
       }
 
       // -Bstatic
-      case kOpt_Bstatic: {
+      case OPT_Bstatic: {
         action.reset(new mcld::BStaticAction(index));
         actions.push_back(std::move(action));
         break;
       }
 
       // --start-group
-      case kOpt_StartGroup: {
+      case OPT_StartGroup: {
         action.reset(new mcld::StartGroupAction(index));
         actions.push_back(std::move(action));
         break;
       }
 
       // --end-group
-      case kOpt_EndGroup: {
+      case OPT_EndGroup: {
         action.reset(new mcld::EndGroupAction(index));
         actions.push_back(std::move(action));
         break;
       }
 
-      case kOpt_INPUT: {
+      case OPT_INPUT: {
         action.reset(new mcld::InputFileAction(index, arg->getValue()));
         actions.push_back(std::move(action));
 
@@ -993,7 +1007,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   //===--------------------------------------------------------------------===//
   // Unknown
   //===--------------------------------------------------------------------===//
-  std::vector<std::string> unknown_args = args.getAllArgValues(kOpt_UNKNOWN);
+  std::vector<std::string> unknown_args = args.getAllArgValues(OPT_UNKNOWN);
   for (std::string arg : unknown_args)
     mcld::warning(mcld::diag::warn_unsupported_option) << arg;
 
@@ -1017,14 +1031,14 @@ std::unique_ptr<Driver> Driver::Create(llvm::ArrayRef<const char*> argv) {
   std::unique_ptr<Driver> result(new Driver(argv[0]));
 
   // Return quickly if -help is specified.
-  if (args.hasArg(kOpt_Help)) {
-    opt_table.PrintHelp(mcld::outs(), argv[0], "MCLinker",
+  if (args.hasArg(OPT_Help)) {
+    opt_table.printHelp(mcld::outs(), argv[0], "MCLinker",
                         /* FlagsToInclude */0, /* FlagsToExclude */0);
     return nullptr;
   }
 
   // Print version information if requested.
-  if (args.hasArg(kOpt_Version)) {
+  if (args.hasArg(OPT_Version)) {
     mcld::outs() << result->config_.options().getVersionString() << "\n";
   }
 
@@ -1062,7 +1076,7 @@ bool Driver::Run() {
 
 int main(int argc, char** argv) {
   std::unique_ptr<Driver> driver =
-      Driver::Create(llvm::makeArrayRef(argv, argc));
+      Driver::Create(llvm::ArrayRef(argv, argc));
 
   if ((driver == nullptr) || !driver->Run()) {
     return EXIT_FAILURE;

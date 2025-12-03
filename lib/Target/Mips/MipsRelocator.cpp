@@ -17,7 +17,7 @@
 #include "mcld/LD/ELFFileFormat.h"
 
 #include <llvm/ADT/Twine.h>
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 namespace mcld {
 

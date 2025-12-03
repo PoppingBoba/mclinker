@@ -18,9 +18,9 @@ namespace mcld {
 
 namespace detail {
 
-template <typename T, typename Alloc, typename Comparator>
-void sort(llvm::iplist<T, Alloc>& xs, size_t size, Comparator is_less_than) {
-  typedef llvm::iplist<T, Alloc> iplist;
+template <typename T, typename Compare, typename... Options>
+void sort(llvm::iplist<T, Options...>& xs, size_t size, Compare is_less_than) {
+  typedef llvm::iplist<T, Options...> iplist;
   typedef typename iplist::iterator iterator;
 
   assert(xs.size() == size && "Incorrect list size argument");
@@ -73,10 +73,9 @@ void sort(llvm::iplist<T, Alloc>& xs, size_t size, Comparator is_less_than) {
 
 }  // namespace detail
 
-template <typename T, typename Alloc, typename Comparator = std::less<T> >
-void sort(llvm::iplist<T, Alloc>& list,
-          Comparator is_less_than = Comparator()) {
-  detail::sort(list, list.size(), is_less_than);
+template <typename T, typename Compare, typename... Options >
+void sort(llvm::iplist<T, Options...>& list, Compare comp) {
+  detail::sort(list, list.size(), comp);
 }
 
 }  // namespace mcld

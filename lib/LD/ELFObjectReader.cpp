@@ -19,7 +19,7 @@
 #include "mcld/Support/MemoryArea.h"
 #include "mcld/Object/ObjectBuilder.h"
 
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/ADT/StringRef.h>
 
@@ -158,7 +158,7 @@ bool ELFObjectReader::readSections(Input& pInput) {
             llvm::StringRef((*section)->name()).drop_front(14));
         signatures().insert(name.split(".").second, exist);
         if (!exist) {
-          if (name.startswith("wi")) {
+          if (name.starts_with("wi")) {
             (*section)->setKind(LDFileFormat::Debug);
             if (m_Config.options().stripDebug())
               (*section)->setKind(LDFileFormat::Ignore);

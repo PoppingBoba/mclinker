@@ -44,9 +44,9 @@ class StringEntry {
 
   void setValue(const DataType& pVal) { m_Value = pVal; }
 
-  bool compare(const llvm::StringRef& pX) { return key().equals(pX); }
+  bool compare(const llvm::StringRef& pX) { return key() == pX; }
 
-  bool compare(const llvm::StringRef& pX) const { return key().equals(pX); }
+  bool compare(const llvm::StringRef& pX) const { return key() == pX; }
 
  private:
   StringEntry();
@@ -87,9 +87,9 @@ class StringEntry<llvm::StringRef> {
 
   void setValue(llvm::StringRef pVal);
 
-  bool compare(const llvm::StringRef pX) { return key().equals(pX); }
+  bool compare(const llvm::StringRef pX) { return key() == pX; }
 
-  bool compare(const llvm::StringRef pX) const { return key().equals(pX); }
+  bool compare(const llvm::StringRef pX) const { return key() == pX; }
 
  private:
   StringEntry();

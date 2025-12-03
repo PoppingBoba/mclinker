@@ -10,7 +10,7 @@
 #define MCLD_LD_ELFSEGMENTFACTORY_H_
 
 #include <llvm/Support/DataTypes.h>
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 #include <vector>
 

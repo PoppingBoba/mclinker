@@ -41,10 +41,10 @@
 #include "mcld/Target/GNUInfo.h"
 
 #include <llvm/ADT/StringRef.h>
-#include <llvm/ADT/Triple.h>
+#include <llvm/TargetParser/Triple.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/Casting.h>
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 #include <cstring>
 #include <vector>
@@ -1006,7 +1006,7 @@ void ARMGNULDBackend::doCreateProgramHdrs(Module& pModule) {
 bool ARMGNULDBackend::mayHaveUnsafeFunctionPointerAccess(
     const LDSection& pSection) const {
   llvm::StringRef name(pSection.name());
-  return !name.startswith(".ARM.exidx") && !name.startswith(".ARM.extab") &&
+  return !name.starts_with(".ARM.exidx") && !name.starts_with(".ARM.extab") &&
          GNULDBackend::mayHaveUnsafeFunctionPointerAccess(pSection);
 }
 

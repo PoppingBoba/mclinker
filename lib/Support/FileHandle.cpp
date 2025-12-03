@@ -12,13 +12,8 @@
 
 #include <errno.h>
 
-#if defined(HAVE_UNISTD_H)
 #include <unistd.h>
-#endif
-#if defined(HAVE_FCNTL_H)
 #include <fcntl.h>
-#endif
-
 #include <sys/stat.h>
 
 namespace mcld {

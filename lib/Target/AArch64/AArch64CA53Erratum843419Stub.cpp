@@ -20,7 +20,7 @@
 #include "mcld/LD/SectionData.h"
 
 #include <llvm/ADT/StringExtras.h>
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 #include <cassert>
 

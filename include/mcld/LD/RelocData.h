@@ -41,7 +41,7 @@ class RelocData {
   explicit RelocData(LDSection& pSection);
 
  public:
-  typedef llvm::iplist<Relocation, GCFactoryListTraits<Relocation> >
+  typedef llvm::iplist<Relocation>
       RelocationListType;
 
   typedef RelocationListType::reference reference;

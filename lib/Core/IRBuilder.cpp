@@ -39,25 +39,25 @@ LDFileFormat::Kind GetELFSectionKind(uint32_t pType,
 
   // name rules
   llvm::StringRef name(pName);
-  if (name.startswith(".debug") || name.startswith(".zdebug") ||
-      name.startswith(".line") || name.startswith(".stab")) {
-    if (name.startswith(".debug_str"))
+  if (name.starts_with(".debug") || name.starts_with(".zdebug") ||
+      name.starts_with(".line") || name.starts_with(".stab")) {
+    if (name.starts_with(".debug_str"))
       return LDFileFormat::DebugString;
     return LDFileFormat::Debug;
   }
-  if (name.startswith(".comment"))
+  if (name.starts_with(".comment"))
     return LDFileFormat::MetaData;
-  if (name.startswith(".interp") || name.startswith(".dynamic"))
+  if (name.starts_with(".interp") || name.starts_with(".dynamic"))
     return LDFileFormat::Note;
-  if (name.startswith(".eh_frame"))
+  if (name.starts_with(".eh_frame"))
     return LDFileFormat::EhFrame;
-  if (name.startswith(".eh_frame_hdr"))
+  if (name.starts_with(".eh_frame_hdr"))
     return LDFileFormat::EhFrameHdr;
-  if (name.startswith(".gcc_except_table"))
+  if (name.starts_with(".gcc_except_table"))
     return LDFileFormat::GCCExceptTable;
-  if (name.startswith(".note.GNU-stack"))
+  if (name.starts_with(".note.GNU-stack"))
     return LDFileFormat::StackNote;
-  if (name.startswith(".gnu.linkonce"))
+  if (name.starts_with(".gnu.linkonce"))
     return LDFileFormat::LinkOnce;
 
   // type rules

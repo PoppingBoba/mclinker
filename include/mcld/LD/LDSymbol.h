@@ -18,8 +18,7 @@
 namespace llvm {
 
 // forware declaration
-template <class T>
-void* object_creator();
+template <class C> struct object_creator;
 
 }  // namespace llvm
 
@@ -38,6 +37,8 @@ class LDSymbol {
   typedef uint64_t ValueType;
 
  public:
+  LDSymbol();
+  LDSymbol(const LDSymbol& pCopy);
   ~LDSymbol();
 
   // -----  factory method ----- //
@@ -124,11 +125,8 @@ class LDSymbol {
 
  private:
   friend class Chunk<LDSymbol, MCLD_SYMBOLS_PER_INPUT>;
-  template <class T>
-  friend void* llvm::object_creator();
+  friend struct llvm::object_creator<LDSymbol>;
 
-  LDSymbol();
-  LDSymbol(const LDSymbol& pCopy);
   LDSymbol& operator=(const LDSymbol& pCopy);
 
  private:

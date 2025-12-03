@@ -11,7 +11,7 @@
 #include "mcld/Target/GNUInfo.h"
 #include "mcld/TargetOptions.h"
 
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 namespace mcld {
 

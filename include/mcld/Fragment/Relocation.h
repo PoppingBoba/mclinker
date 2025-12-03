@@ -34,7 +34,7 @@ class Relocation : public llvm::ilist_node<Relocation> {
   typedef uint32_t Type;
   typedef uint32_t Size;
 
- private:
+ public:
   Relocation();
 
   Relocation(Type pType,
@@ -44,7 +44,6 @@ class Relocation : public llvm::ilist_node<Relocation> {
 
   ~Relocation();
 
- public:
   /// Initialize - set up the relocation factory
   static void SetUp(const LinkerConfig& pConfig);
 
@@ -123,5 +122,14 @@ class Relocation : public llvm::ilist_node<Relocation> {
 };
 
 }  // namespace mcld
+
+namespace llvm {
+  template<>
+  struct ilist_traits<mcld::Relocation>
+    : public mcld::GCFactoryListTraits<mcld::Relocation> {
+
+  };
+} // namespace
+
 
 #endif  // MCLD_FRAGMENT_RELOCATION_H_

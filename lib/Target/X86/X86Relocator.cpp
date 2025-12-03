@@ -20,7 +20,7 @@
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/DataTypes.h>
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 namespace mcld {
 

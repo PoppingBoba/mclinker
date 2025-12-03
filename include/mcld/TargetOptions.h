@@ -9,7 +9,8 @@
 #ifndef MCLD_TARGETOPTIONS_H_
 #define MCLD_TARGETOPTIONS_H_
 
-#include <llvm/ADT/Triple.h>
+#include <llvm/TargetParser/Triple.h>
+#include <llvm/ADT/Twine.h>
 
 #include <string>
 

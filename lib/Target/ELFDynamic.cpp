@@ -13,7 +13,7 @@
 #include "mcld/LinkerConfig.h"
 
 #include <llvm/Support/ErrorHandling.h>
-#include <llvm/Support/Host.h>
+#include <llvm/TargetParser/Host.h>
 
 namespace mcld {
 namespace elf_dynamic {

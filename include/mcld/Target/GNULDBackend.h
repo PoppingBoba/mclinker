@@ -17,7 +17,7 @@
 #include "mcld/LD/GNUArchiveReader.h"
 #include "mcld/Target/TargetLDBackend.h"
 
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 #include <cstdint>
 

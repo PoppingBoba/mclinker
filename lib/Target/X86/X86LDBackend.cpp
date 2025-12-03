@@ -22,9 +22,9 @@
 #include "mcld/Support/TargetRegistry.h"
 
 #include <llvm/ADT/StringRef.h>
-#include <llvm/ADT/Triple.h>
+#include <llvm/TargetParser/Triple.h>
 #include <llvm/Support/Casting.h>
-#include <llvm/Support/Dwarf.h>
+#include <llvm/BinaryFormat/Dwarf.h>
 
 #include <cstring>
 

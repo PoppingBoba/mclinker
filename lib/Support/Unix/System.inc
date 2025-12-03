@@ -40,7 +40,7 @@ std::string getDefaultTargetTriple() {
 
   // Normalize the arch, since the target triple may not actually match the
   // target.
-  std::string Arch = ArchSplit.first;
+  std::string Arch = ArchSplit.first.str();
 
   std::string Triple(Arch);
   Triple += '-';

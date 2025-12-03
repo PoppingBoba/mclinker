@@ -18,8 +18,8 @@
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/DataTypes.h>
-#include <llvm/Support/ELF.h>
-#include <llvm/Support/Host.h>
+#include <llvm/BinaryFormat/ELF.h>
+#include <llvm/TargetParser/Host.h>
 
 namespace mcld {
 

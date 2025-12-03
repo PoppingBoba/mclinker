@@ -11,7 +11,7 @@
 #include "mcld/LD/EhFrame.h"
 #include "mcld/LD/LDSection.h"
 
-#include <llvm/Support/Dwarf.h>
+#include <llvm/BinaryFormat/Dwarf.h>
 #include <llvm/Support/DataTypes.h>
 
 #include <algorithm>

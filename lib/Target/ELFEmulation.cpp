@@ -11,7 +11,7 @@
 #include "mcld/LinkerConfig.h"
 #include "mcld/Script/InputSectDesc.h"
 
-#include <llvm/Support/Host.h>
+#include <llvm/TargetParser/Host.h>
 
 namespace mcld {
 

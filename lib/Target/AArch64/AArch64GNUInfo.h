@@ -10,7 +10,7 @@
 #define TARGET_AARCH64_AARCH64GNUINFO_H_
 #include "mcld/Target/GNUInfo.h"
 
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 namespace mcld {
 

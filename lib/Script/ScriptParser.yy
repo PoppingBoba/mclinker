@@ -41,7 +41,7 @@ using namespace mcld;
 %defines "ScriptParser.h"
 %error-verbose
 %define namespace "mcld"
-%define "parser_class_name" "ScriptParser"
+%define parser_class_name "ScriptParser"
 %parse-param { const class LinkerConfig& m_LDConfig }
 %parse-param { class ScriptFile& m_ScriptFile }
 %parse-param { class ScriptScanner& m_ScriptScanner }

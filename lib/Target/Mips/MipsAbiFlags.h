@@ -11,7 +11,6 @@
 
 #include "mcld/Support/MemoryRegion.h"
 
-#include <llvm/ADT/Optional.h>
 #include <llvm/Object/ELFTypes.h>
 
 namespace mcld {

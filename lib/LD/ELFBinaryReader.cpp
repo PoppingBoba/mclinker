@@ -13,7 +13,7 @@
 #include "mcld/MC/Input.h"
 #include "mcld/Support/MemoryArea.h"
 
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 #include <cctype>
 

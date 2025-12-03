@@ -18,7 +18,7 @@
 
 #include "mcld/Support/Path.h"
 
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 using namespace mcld;
 using namespace mcld::test;

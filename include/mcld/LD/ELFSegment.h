@@ -12,7 +12,7 @@
 #include "mcld/Support/Allocators.h"
 
 #include <llvm/Support/DataTypes.h>
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 #include <vector>
 

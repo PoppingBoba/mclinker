@@ -10,7 +10,7 @@
 #define TARGET_ARM_ARMGNUINFO_H_
 #include "mcld/Target/GNUInfo.h"
 
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 namespace mcld {
 

@@ -31,7 +31,7 @@
 #include "mcld/Target/GNULDBackend.h"
 
 #include <llvm/Support/Casting.h>
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 #include <llvm/Support/Errc.h>
 #include <llvm/Support/ErrorHandling.h>
 

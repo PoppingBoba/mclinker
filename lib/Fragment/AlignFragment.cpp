@@ -9,6 +9,7 @@
 #include "mcld/Fragment/AlignFragment.h"
 #include "mcld/LD/SectionData.h"
 
+#include <llvm/Support/Alignment.h>
 #include <llvm/Support/MathExtras.h>
 
 namespace mcld {
@@ -32,7 +33,7 @@ AlignFragment::AlignFragment(unsigned int pAlignment,
 size_t AlignFragment::size() const {
   assert(hasOffset() &&
          "AlignFragment::size() should not be called before layout.");
-  uint64_t size = llvm::OffsetToAlignment(getOffset(), m_Alignment);
+  uint64_t size = llvm::offsetToAlignment(getOffset(), llvm::Align(m_Alignment));
   if (size > m_MaxBytesToEmit)
     return 0;
 

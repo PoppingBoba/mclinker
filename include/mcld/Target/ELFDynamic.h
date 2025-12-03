@@ -11,7 +11,7 @@
 
 #include "mcld/LD/LDSection.h"
 #include "mcld/Support/FileOutputBuffer.h"
-#include <llvm/Support/ELF.h>
+#include <llvm/BinaryFormat/ELF.h>
 #include <vector>
 #include <cstring>
 

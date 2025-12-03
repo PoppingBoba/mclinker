@@ -43,7 +43,7 @@
 #include "mcld/Target/GNUInfo.h"
 
 #include <llvm/ADT/StringRef.h>
-#include <llvm/Support/Host.h>
+#include <llvm/TargetParser/Host.h>
 
 #include <algorithm>
 #include <cstring>
@@ -1346,7 +1346,7 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const {
 
           // Make special sections that end with .rel.ro suffix as RELRO.
           llvm::StringRef name(pSectHdr.name());
-          if (name.endswith(".rel.ro")) {
+          if (name.ends_with(".rel.ro")) {
             return SHO_RELRO;
           }
         }
@@ -2493,10 +2493,10 @@ void GNULDBackend::createAndSizeEhFrameHdr(Module& pModule) {
 bool GNULDBackend::mayHaveUnsafeFunctionPointerAccess(
     const LDSection& pSection) const {
   llvm::StringRef name(pSection.name());
-  return !name.startswith(".rodata._ZTV") &&
-         !name.startswith(".data.rel.ro._ZTV") &&
-         !name.startswith(".rodata._ZTC") &&
-         !name.startswith(".data.rel.ro._ZTC") && !name.startswith(".eh_frame");
+  return !name.starts_with(".rodata._ZTV") &&
+         !name.starts_with(".data.rel.ro._ZTV") &&
+         !name.starts_with(".rodata._ZTC") &&
+         !name.starts_with(".data.rel.ro._ZTC") && !name.starts_with(".eh_frame");
 }
 
 /// preLayout - Backend can do any needed modification before layout

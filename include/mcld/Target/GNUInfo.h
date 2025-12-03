@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_GNUINFO_H_
 #define MCLD_TARGET_GNUINFO_H_
-#include <llvm/ADT/Triple.h>
-#include <llvm/Support/ELF.h>
+#include <llvm/TargetParser/Triple.h>
+#include <llvm/BinaryFormat/ELF.h>
 
 namespace mcld {
 

@@ -21,7 +21,7 @@
 #include "mcld/Target/GNULDBackend.h"
 
 #include <llvm/ADT/STLExtras.h>
-#include <llvm/Support/Host.h>
+#include <llvm/TargetParser/Host.h>
 
 #include <cstring>
 
@@ -31,7 +31,9 @@ namespace mcld {
 // ELFAttribute
 //===----------------------------------------------------------------------===//
 ELFAttribute::~ELFAttribute() {
-  llvm::DeleteContainerPointers(m_Subsections);
+  for (auto *Subsec : m_Subsections)
+    delete Subsec;
+  m_Subsections.clear();
   return;
 }
 

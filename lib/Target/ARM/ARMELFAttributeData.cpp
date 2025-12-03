@@ -649,7 +649,7 @@ static int calculate_fp_config_hash(const struct fp_config_data& pConfig) {
 static int get_fp_arch_of_config(const struct fp_config_data& pConfig) {
   int hash = calculate_fp_config_hash(pConfig);
   assert(static_cast<size_t>(hash) <
-         llvm::array_lengthof(fp_config_hash_table));
+         std::size(fp_config_hash_table));
   return fp_config_hash_table[hash];
 }
 
