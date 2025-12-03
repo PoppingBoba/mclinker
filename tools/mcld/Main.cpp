@@ -841,6 +841,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
 
   for (llvm::opt::Arg* arg : args) {
     const unsigned index = arg->getIndex();
+    printf("Test::-> %d: %s[ID %d]\n", arg->getIndex(), arg->getValue(), arg->getOption().getID());
 
     switch (arg->getOption().getID()) {
       // -T script
@@ -966,7 +967,8 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
         break;
       }
 
-      case OPT_INPUT: {
+      case OPT_INPUT: 
+      case OPT_UNKNOWN: {
         action.reset(new mcld::InputFileAction(index, arg->getValue()));
         actions.push_back(std::move(action));
 
