@@ -26,8 +26,8 @@ Following systems can be linked successfully
 * Fast, small with low memory footprint
 
 ### Current Status
-Date: 2015/09/11 <br>
-LLVM: 3.8svn (trunk)<br>
+Date: 2025/12/03 <br>
+LLVM: 22.1.0 (trunk)<br>
 MCLinker: 2.11.0-dev, master branch<br>
 <br>
 Date: 2015/09/11<br>
