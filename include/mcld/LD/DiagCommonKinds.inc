@@ -223,3 +223,7 @@ DIAG(eh_missing_text_section,
      DiagnosticEngine::Fatal,
      "missing text section for '%0' in file '%1'",
      "missing text section for '%0' in file '%1'")
+DIAG(warn_map_used,
+     DiagnosticEngine::Warning,
+     "-Map is not allow now. just the temp function",
+     "-Map is not allow now. just the temp function")

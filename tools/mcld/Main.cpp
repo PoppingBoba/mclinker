@@ -57,6 +57,8 @@
 #endif
 #endif
 
+using namespace llvm::opt;
+
 namespace {
 
 enum OptionID {
@@ -828,6 +830,15 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
   }
 
   //===--------------------------------------------------------------------===//
+  // ETC
+  //===--------------------------------------------------------------------===//
+  // @TODO : Implement -Map Parameter work
+  if (auto arg = args.getLastArg(OPT_Map)) {
+    auto value = arg->getValue();
+    mcld::warning(mcld::diag::warn_map_used);
+  }
+
+  //===--------------------------------------------------------------------===//
   // Positional
   //===--------------------------------------------------------------------===//
 
@@ -841,7 +852,8 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
 
   for (llvm::opt::Arg* arg : args) {
     const unsigned index = arg->getIndex();
-    printf("Test::-> %d: %s[ID %d]\n", arg->getIndex(), arg->getValue(), arg->getOption().getID());
+    if (arg->getNumValues() > 0)
+      printf("Test::-> %d: %s[ID %d]\n", arg->getIndex(), arg->getValue(), arg->getOption().getID());
 
     switch (arg->getOption().getID()) {
       // -T script
@@ -1077,8 +1089,9 @@ bool Driver::Run() {
 }  // anonymous namespace
 
 int main(int argc, char** argv) {
-  std::unique_ptr<Driver> driver =
-      Driver::Create(llvm::ArrayRef(argv, argc));
+  auto Args = llvm::ArrayRef<const char*>(argv, static_cast<size_t>(argc));
+  auto driver =
+      Driver::Create(Args);
 
   if ((driver == nullptr) || !driver->Run()) {
     return EXIT_FAILURE;

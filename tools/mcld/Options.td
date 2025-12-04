@@ -494,3 +494,10 @@ def FixCA53Erratum835769 : Flag<["--"], "fix-cortex-a53-835769">,
 def FixCA53Erratum843419 : Flag<["--"], "fix-cortex-a53-843419">,
                            Group<TargetGroup>,
                            HelpText<"Enable fix for cortex a53 erratum 843419">;
+
+//===----------------------------------------------------------------------===//
+// ETC
+//===----------------------------------------------------------------------===//
+def Map : JoinedOrSeparate<["-"], "Map">,
+          MetaVarName<"file">,
+          HelpText<"Write Map file to <file>">; 
