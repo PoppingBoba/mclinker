@@ -6,4 +6,5 @@ add_llvm_library(MCLDObject
     MCLDFragment
     MCLDLD
     MCLDScript
+    MCLDLTO
   )

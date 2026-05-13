@@ -42,6 +42,9 @@
 #include "mcld/Support/RealPath.h"
 #include "mcld/Target/TargetLDBackend.h"
 
+#include "mcld/LTO/BitcodeReader.h"
+#include "mcld/LTO/LLVMBitcodeReader.h"
+
 #include <llvm/Support/Casting.h>
 #include <llvm/TargetParser/Host.h>
 
@@ -177,6 +180,10 @@ void ObjectLinker::normalize() {
       (*input)->setType(Input::Object);
       getBinaryReader()->readBinary(**input);
       m_pModule->getObjectList().push_back(*input);
+    } else if (doContinue &&
+                getBitcodeReader()->isMyFormat(**input, doContinue)) {
+      // @TODO
+      getBitcodeReader()->readSymbols(**input);
     } else if (doContinue &&
                getObjectReader()->isMyFormat(**input, doContinue)) {
       // is a relocatable object file

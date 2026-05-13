@@ -7,3 +7,6 @@ add_subdirectory(Object)
 add_subdirectory(Script)
 add_subdirectory(Support)
 add_subdirectory(Target)
+
+# Nakada Tokumei's Working
+add_subdirectory(LTO)

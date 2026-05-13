@@ -42,6 +42,8 @@ class SectionData;
 class SectionReachedListMap;
 class StubFactory;
 
+class BitcodeReader;
+
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
 //===----------------------------------------------------------------------===//
@@ -75,6 +77,7 @@ class TargetLDBackend {
   virtual DynObjReader* createDynObjReader(IRBuilder&) = 0;
   virtual BinaryReader* createBinaryReader(IRBuilder&) = 0;
   virtual ObjectWriter* createWriter() = 0;
+  virtual BitcodeReader* createBitcodeReader() = 0;
 
   virtual bool initStdSections(ObjectBuilder& pBuilder) = 0;
 

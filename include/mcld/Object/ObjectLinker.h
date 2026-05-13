@@ -30,6 +30,8 @@ class ResolveInfo;
 class ScriptReader;
 class TargetLDBackend;
 
+class BitcodeReader;
+
 /** \class ObjectLinker
  */
 class ObjectLinker {
@@ -145,6 +147,10 @@ class ObjectLinker {
   const ObjectWriter* getWriter() const { return m_pWriter; }
   ObjectWriter* getWriter() { return m_pWriter; }
 
+  // Bitcode Reader for LTO sequence
+  const BitcodeReader* getBitcodeReader() const { return m_BitcodeReader; }
+  BitcodeReader* getBitcodeReader() { return m_BitcodeReader; }
+
  private:
   /// normalSyncRelocationResult - sync relocation result when producing shared
   /// objects or executables
@@ -177,6 +183,9 @@ class ObjectLinker {
   BinaryReader* m_pBinaryReader;
   ScriptReader* m_pScriptReader;
   ObjectWriter* m_pWriter;
+
+  // Bitcode Reader for LTO
+  BitcodeReader* m_BitcodeReader;
 };
 
 }  // namespace mcld
