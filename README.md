@@ -26,13 +26,35 @@ Following systems can be linked successfully
 * Fast, small with low memory footprint
 
 ### Current Status
-Date: 2025/12/03 <br>
-LLVM: 22.1.0 (trunk)<br>
+Date: 2026/05/13 <br>
+LLVM: 23.1.0 (trunk)<br>
 MCLinker: 2.11.0-dev, master branch<br>
 <br>
 Date: 2015/09/11<br>
 LLVM: 3.8svn (trunk@246954)<br>
 MCLinker: 2.10.0-rc, release_210 branch
+
+### How to build
+mcld depends on LLVM. You can build ELD:
+- Integrated into an `llvm-project` build
+
+You'll need a recent C++ compiler for building LLVM and mcld
+```bash
+git clone https://github.com/llvm/llvm-project.git
+cd llvm-project/
+git clone https://github.com/qualcomm/eld.git
+cd ../
+cmake -G Ninja \
+        -DCMAKE_INSTALL_PREFIX=../inst \
+        -DLLVM_ENABLE_PROJECTS='llvm;clang' \
+        -DLLVM_EXTERNAL_PROJECTS=mcld \
+        -DLLVM_EXTERNAL_MCLD_SOURCE_DIR=${PWD}/llvm-project/mclinker \
+        -DLLVM_TARGETS_TO_BUILD='X86' \
+        -B ./obj \
+        -S ./llvm-project/llvm
+
+cmake --build obj -- -j$(nproc)
+```
 
 ### Next Milestone
 * ARM exception handling format enhancement
