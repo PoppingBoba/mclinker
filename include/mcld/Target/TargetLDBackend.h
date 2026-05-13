@@ -77,7 +77,7 @@ class TargetLDBackend {
   virtual DynObjReader* createDynObjReader(IRBuilder&) = 0;
   virtual BinaryReader* createBinaryReader(IRBuilder&) = 0;
   virtual ObjectWriter* createWriter() = 0;
-  virtual BitcodeReader* createBitcodeReader() = 0;
+  virtual BitcodeReader* createBitcodeReader();
 
   virtual bool initStdSections(ObjectBuilder& pBuilder) = 0;
 

@@ -10,6 +10,8 @@
 
 #include "mcld/LinkerConfig.h"
 
+#include "mcld/LTO/BitcodeReader.h"
+
 namespace mcld {
 
 TargetLDBackend::TargetLDBackend(const LinkerConfig& pConfig)
@@ -17,6 +19,11 @@ TargetLDBackend::TargetLDBackend(const LinkerConfig& pConfig)
 }
 
 TargetLDBackend::~TargetLDBackend() {
+}
+
+BitcodeReader* TargetLDBackend::createBitcodeReader()
+{
+    return nullptr;
 }
 
 }  // namespace mcld
